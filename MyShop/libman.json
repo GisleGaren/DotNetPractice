@@ -1,0 +1,11 @@
+// This shows up when we have added a library which is found in wwwroot
+{
+  "version": "1.0",
+  "defaultProvider": "cdnjs",
+  "libraries": [
+    {
+      "library": "bootstrap@5.1.0",
+      "destination": "wwwroot/lib/bootstrap/"
+    }
+  ]
+}
