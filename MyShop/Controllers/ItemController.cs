@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using MyShop.Models;
+using MyShop.ViewModels;
 
 namespace MyShop.Controllers;
 
@@ -12,16 +13,30 @@ public class ItemController : Controller
     public IActionResult Table()
     {
         var items = GetItems();
-        ViewBag.CurrentViewName = "Table";
-        return View(items);
+        var itemListViewModel = new ItemListViewModel(items, "Table");
+        return View(itemListViewModel);
     }
 
     public IActionResult Grid()
     {
         var items = GetItems();
-        ViewBag.CurrentViewName = "Grid"; // This will return Grid at the ViewBag Razor syntax in Grid.cshtml
-        return View(items); // return all the array objects in the relevant View page.
+        var itemListViewModel = new ItemListViewModel(items, "Grid"); // Here instead, we have the list and String into the ItemListViewModel to have several returns.
+        return View(itemListViewModel);
     }
+
+    //public IActionResult Table()
+    //{
+    //    var items = GetItems();
+    //    ViewBag.CurrentViewName = "Table";
+    //    return View(items);
+    //}
+
+    //public IActionResult Grid()
+    //{
+    //    var items = GetItems();
+    //    ViewBag.CurrentViewName = "Grid"; // This will return "Grid" in the "@ViewBag.CurrentViewName View" when the Grid View is being utilized
+    //    return View(items); 
+    //}
 
     public List<Item> GetItems()
     {
