@@ -24,6 +24,16 @@ public class ItemController : Controller
         return View(itemListViewModel);
     }
 
+    public IActionResult Details(int id)
+    {
+        // In this details method, it takes in a specific id as an argument and much like React with the .map() method, we are using a lambda expression.
+        var items = GetItems();
+        var item = items.FirstOrDefault(i => i.ItemId == id); // FirstorDefault is a LINQ method to find the first item in the array that matches the id from the argument
+        if(item == null) { // If found, we assign it to the var item variable, if item == null, that means the id does not exist in the array
+            return NotFound();  // and we return the NotFound() method, which produces an HTTP 404 not found response.
+        }
+        return View(item);
+    }
     //public IActionResult Table()
     //{
     //    var items = GetItems();

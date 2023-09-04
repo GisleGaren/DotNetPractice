@@ -1,5 +1,8 @@
 ﻿@model Item
-
+<!-- Here we are receiving that specific model (object) with the relevant id as seen in View(item)
+     The item passed from the Details action method becomes accessible throughout the Razor view using 
+     the (at)model variable. In the context of the Razor view, (at)model refers to the instance of the Item that was passed from the controller.
+-->
 <h3 class="my-5">
     @Model.Name
 </h3>

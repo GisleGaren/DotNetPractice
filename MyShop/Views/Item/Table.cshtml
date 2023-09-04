@@ -3,21 +3,10 @@
     At the top of your Table.cshtml view, you're specifying that the view is expecting a model of type ItemListViewModel using (at)model ItemListViewModel.
     This tells the view that it should receive an instance of ItemListViewModel as its model.
 -->
-<h1>List of Shop Items (@ViewBag.CurrentViewName View)</h1>
+<h1>List of Shop Items (@Model.CurrentViewName View)</h1>
 <a href="/Item/Grid">Grid View</a>
 
-<div class="container">
-    <table class='table table-striped'>
-        <tr><th>Id</th><th>Name</th><th>Price</th><th>Description</th></tr>
-        @foreach (var item in Model.Items)
-        {
-            <tr>
-                <td>@item.ItemId</td>
-                <td>@item.Name</td>
-                <td>@item.Price.ToString("0.00 NOK")</td>
-                <td>@item.Description</td>
-                <td></td>
-            </tr>
-        }
-    </table>
-</div>
+<!-- With partial views, we are essentially doing the equivalent in .NET to creating components in React, here we are pointing to the _ItemTable
+     View in Shared and we are passing in Model.Items arrayList as an argument into the _ItemTable View.
+-->
+<partial name="_ItemTable" model="Model.Items" />
