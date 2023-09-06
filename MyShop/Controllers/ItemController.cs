@@ -10,16 +10,29 @@ namespace MyShop.Controllers;
 
 public class ItemController : Controller
 {
+    // For the construction injector, this is just a dependency that we need to inject into the ItemController.cs class in order for us
+    // to interact with the database and manipulate the data in the database.
+    private readonly ItemDbContext _itemDbContext;
+
+    // The constructor is called when an ItemController instance is created, typically when handling an incoming HTTP request (When the Views
+    // in the ItemController are called such as Table(), Grid() or Details()
+    // ASP.NET handles the instantiation of the controller and its dependencies through dependency injection.
+    public ItemController(ItemDbContext itemDbContext)
+    {
+        _itemDbContext = itemDbContext;
+    }
     public IActionResult Table()
     {
-        var items = GetItems();
+        // With the line below, we first query _itemDbContext, which in this case is a database table and we call ToList() to retrieve all items 
+        // from the table as a list of Item objects.
+        List<Item> items = _itemDbContext.Items.ToList();
         var itemListViewModel = new ItemListViewModel(items, "Table");
         return View(itemListViewModel);
     }
 
     public IActionResult Grid()
     {
-        var items = GetItems();
+        List<Item> items = _itemDbContext.Items.ToList();
         var itemListViewModel = new ItemListViewModel(items, "Grid"); // Here instead, we have the list and String into the ItemListViewModel to have several returns.
         return View(itemListViewModel);
     }
@@ -27,7 +40,7 @@ public class ItemController : Controller
     public IActionResult Details(int id)
     {
         // In this details method, it takes in a specific id as an argument and much like React with the .map() method, we are using a lambda expression.
-        var items = GetItems();
+        List<Item> items = _itemDbContext.Items.ToList();
         var item = items.FirstOrDefault(i => i.ItemId == id); // FirstorDefault is a LINQ method to find the first item in the array that matches the id from the argument
         if(item == null) { // If found, we assign it to the var item variable, if item == null, that means the id does not exist in the array
             return NotFound();  // and we return the NotFound() method, which produces an HTTP 404 not found response.

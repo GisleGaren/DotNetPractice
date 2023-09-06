@@ -5,6 +5,7 @@ using MyShop.Models;
 // We add this class and folder because to always have items and CurrentViewName is impractical as we may want to pass data into the View.
 // A good practice is to wrap all data needed in a View to a ViewModel.
 // With the code below, we can comment out the original code in the ItemController. 
+// A View Model is A data structure that wraps all data relevant to the View into an object
 namespace MyShop.ViewModels
 {
     public class ItemListViewModel
