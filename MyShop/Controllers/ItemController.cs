@@ -47,6 +47,30 @@ public class ItemController : Controller
         }
         return View(item);
     }
+    // We use this action method to display the form that we want to create. When a user navigates to the Create view, we invoke the GET request.
+    // This GET request is associated with the /Create url route and once the user has gone to the /Create url, we return the Create View.
+    // We use this GET tag to decorate methods in order to retrieve data from the server.
+    [HttpGet]
+    public IActionResult Create()
+    {
+        return View();
+    }
+
+    // Post method that we use to handle submission of the form when we have filled it and it takes an item object as parameter which is bound by the form data
+    // sent in the Create View. This method checks if the form data passed the validation rules. If valid, we then add the form info as a row into the database
+    // and the changes are then saved (commited) using the SaveChanges() method. After successfully adding the item to the database, we direct to the Table View.
+    // If invalid, we just return the same Create View with an error message.
+    [HttpPost]
+    public IActionResult Create(Item item) 
+    {
+        if(ModelState.IsValid)
+        {
+            _itemDbContext.Items.Add(item);
+            _itemDbContext.SaveChanges();
+            return RedirectToAction(nameof(Table));
+        }
+        return View(item);
+    }
     //public IActionResult Table()
     //{
     //    var items = GetItems();
