@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using MyShop.Models;
 using MyShop.ViewModels;
 
@@ -21,27 +22,29 @@ public class ItemController : Controller
     {
         _itemDbContext = itemDbContext;
     }
-    public IActionResult Table()
+
+    // ADDED ASYNC which enables a time consuming task to run in the background without blocking other processes and it has to return Task<T>
+    public async Task<IActionResult> Table()
     {
         // With the line below, we first query _itemDbContext, which in this case is a database table and we call ToList() to retrieve all items 
         // from the table as a list of Item objects.
-        List<Item> items = _itemDbContext.Items.ToList();
+        List<Item> items = await _itemDbContext.Items.ToListAsync();
         var itemListViewModel = new ItemListViewModel(items, "Table");
         return View(itemListViewModel);
     }
 
-    public IActionResult Grid()
+    public async Task<IActionResult> Grid()
     {
-        List<Item> items = _itemDbContext.Items.ToList();
+        List<Item> items = await _itemDbContext.Items.ToListAsync(); 
         var itemListViewModel = new ItemListViewModel(items, "Grid"); // Here instead, we have the list and String into the ItemListViewModel to have several returns.
         return View(itemListViewModel);
     }
 
-    public IActionResult Details(int id)
+    public async Task<IActionResult> Details(int id)
     {
         // In this details method, it takes in a specific id as an argument and much like React with the .map() method, we are using a lambda expression.
-        List<Item> items = _itemDbContext.Items.ToList();
-        var item = items.FirstOrDefault(i => i.ItemId == id); // FirstorDefault is a LINQ method to find the first item in the array that matches the id from the argument
+        // List<Item> items = await _itemDbContext.Items.ToListAsync();
+        var item = await _itemDbContext.Items.FirstOrDefaultAsync(i => i.ItemId == id); // FirstorDefault is a LINQ method to find the first item in the array that matches the id from the argument
         if(item == null) { // If found, we assign it to the var item variable, if item == null, that means the id does not exist in the array
             return NotFound();  // and we return the NotFound() method, which produces an HTTP 404 not found response.
         }
@@ -61,12 +64,14 @@ public class ItemController : Controller
     // and the changes are then saved (commited) using the SaveChanges() method. After successfully adding the item to the database, we direct to the Table View.
     // If invalid, we just return the same Create View with an error message.
     [HttpPost]
-    public IActionResult Create(Item item) 
+    public async Task<IActionResult> Create(Item item) 
     {
         if(ModelState.IsValid)
         {
+            // the .Add() method tells Entity Framework to consider "item" argument as a new entity that should be inserted into the database when we call
+            // saveChanges(). Entity Frameworks keeps track of the change in memory, but doesn't immediately do database commands / manipulations.
             _itemDbContext.Items.Add(item);
-            _itemDbContext.SaveChanges();
+            await _itemDbContext.SaveChangesAsync();
             return RedirectToAction(nameof(Table));
         }
         return View(item);
@@ -75,8 +80,8 @@ public class ItemController : Controller
     // This is used to display the form for the specific item id that we want to update. It has the GET attribute that indicates that it handles HTTP GET requests
     // When a user navigates to the Update page, it invokes this method and it takes the id parameter to identify the item to be updated.
     [HttpGet]
-    public IActionResult Update(int id) {
-        var item = _itemDbContext.Items.Find(id); // Retrives the item using the Find method from the database with the given ID.
+    public async Task<IActionResult> Update(int id) {
+        var item = await _itemDbContext.Items.FindAsync(id); // Retrives the item using the Find method from the database with the given ID.
         if(item == null)
         {
             return NotFound(); // If not found, return 404 error.
@@ -87,12 +92,13 @@ public class ItemController : Controller
     // This one is a post action method that handles the HTTP Post request to process the updated data form submission the Update View into the database.
     // We take the item object representing the updated data submitted through the form in the Update View.
     [HttpPost]
-    public IActionResult Update(Item item)
+    public async Task<IActionResult> Update(Item item)
     {
         if(ModelState.IsValid) // We then check if the data passed passes the validation as defined in the Item Model class
         {
+            // Much like .Add(), Update() works with the Entity Framework tracker and marks the changes as updated and doesn't involve I/O or database communication.
             _itemDbContext.Items.Update(item); // If valid, we update the database using Update() and we save the changes
-            _itemDbContext.SaveChanges();
+            await _itemDbContext.SaveChangesAsync();
             return RedirectToAction(nameof(Table)); // If everything successful, we then redirect to the Table View.
         }
         // If it fails, we return a view of the same page with errors instead of the Table view above within the modelState.IsValid page.
@@ -101,9 +107,9 @@ public class ItemController : Controller
 
     // Get method to display the confirmation page for the delete button, if not found, we return 404 not found.
     [HttpGet]
-    public IActionResult Delete(int id) 
+    public async Task<IActionResult> Delete(int id) 
     {
-        var item = _itemDbContext.Items.Find(id); // Again, we find the item id we want to delete and return the object
+        var item = await _itemDbContext.Items.FindAsync(id); // Again, we find the item id we want to delete and return the object
         if(item == null)
         {
             return NotFound(); // return 404 not found
@@ -113,15 +119,17 @@ public class ItemController : Controller
 
     // Post action method to actually delete the item from the list.
     [HttpPost]
-    public IActionResult DeleteConfirmed(int id)
+    public async Task<IActionResult> DeleteConfirmed(int id)
     {
-        var item = _itemDbContext.Items.Find(id); // Takes in the item id and finds it in the database.
+        var item = await _itemDbContext.Items.FindAsync(id); // Takes in the item id and finds it in the database.
         if(item == null)
         {
             return NotFound();      // return 404 not found if not found
         }
+        // Same with the Remove() method, is works with the entity framework change tracker, marking the entity for deletion in memory. Whilst the actual
+        // deleting goes on in the SaveChangesAsync() method.
         _itemDbContext.Items.Remove(item);      // remove the item from the database if found.
-        _itemDbContext.SaveChanges();           // Then we save the changes in the database
+        await _itemDbContext.SaveChangesAsync();           // Then we save the changes in the database
         return RedirectToAction(nameof(Table));     // Redirect to the table View to see that the item has now been deleted.
     }
 
