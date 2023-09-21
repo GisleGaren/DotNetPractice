@@ -71,6 +71,60 @@ public class ItemController : Controller
         }
         return View(item);
     }
+
+    // This is used to display the form for the specific item id that we want to update. It has the GET attribute that indicates that it handles HTTP GET requests
+    // When a user navigates to the Update page, it invokes this method and it takes the id parameter to identify the item to be updated.
+    [HttpGet]
+    public IActionResult Update(int id) {
+        var item = _itemDbContext.Items.Find(id); // Retrives the item using the Find method from the database with the given ID.
+        if(item == null)
+        {
+            return NotFound(); // If not found, return 404 error.
+        }
+        return View(item); // If found, it returns the Update View page.
+    }
+
+    // This one is a post action method that handles the HTTP Post request to process the updated data form submission the Update View into the database.
+    // We take the item object representing the updated data submitted through the form in the Update View.
+    [HttpPost]
+    public IActionResult Update(Item item)
+    {
+        if(ModelState.IsValid) // We then check if the data passed passes the validation as defined in the Item Model class
+        {
+            _itemDbContext.Items.Update(item); // If valid, we update the database using Update() and we save the changes
+            _itemDbContext.SaveChanges();
+            return RedirectToAction(nameof(Table)); // If everything successful, we then redirect to the Table View.
+        }
+        // If it fails, we return a view of the same page with errors instead of the Table view above within the modelState.IsValid page.
+        return View(item); // 
+    }
+
+    // Get method to display the confirmation page for the delete button, if not found, we return 404 not found.
+    [HttpGet]
+    public IActionResult Delete(int id) 
+    {
+        var item = _itemDbContext.Items.Find(id); // Again, we find the item id we want to delete and return the object
+        if(item == null)
+        {
+            return NotFound(); // return 404 not found
+        }
+        return View(item); // Else redirect to the confirmation delete page.
+    }
+
+    // Post action method to actually delete the item from the list.
+    [HttpPost]
+    public IActionResult DeleteConfirmed(int id)
+    {
+        var item = _itemDbContext.Items.Find(id); // Takes in the item id and finds it in the database.
+        if(item == null)
+        {
+            return NotFound();      // return 404 not found if not found
+        }
+        _itemDbContext.Items.Remove(item);      // remove the item from the database if found.
+        _itemDbContext.SaveChanges();           // Then we save the changes in the database
+        return RedirectToAction(nameof(Table));     // Redirect to the table View to see that the item has now been deleted.
+    }
+
     //public IActionResult Table()
     //{
     //    var items = GetItems();
