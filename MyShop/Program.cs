@@ -26,8 +26,11 @@ builder.Services.AddDbContext<ItemDbContext>(options => {
 
 // When we start the application, the dependency injector (ServiceCollection) associates requests for IItemRepository interface with instances
 // of the ItemRepository class. Whenever we request an instance of IItemRepository to be injected into a controller or other parts of the application,
-// the dependency injection system creates a new instance of ItemRepository scoped to the current HTTP request (.AddScoped()). 
+// the dependency injection system creates a new instance of ItemRepository scoped to the current HTTP request (.AddScoped()) and then provide that
+// instance. That way we can work with ItemRepository instance without explicitly creating it. 
 builder.Services.AddScoped<IItemRepository, ItemRepository>();
+builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+builder.Services.AddScoped<IOrderItemRepository, OrderItemRepository>();
 
 var app = builder.Build();
 

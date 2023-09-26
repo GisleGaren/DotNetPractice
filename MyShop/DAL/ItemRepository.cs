@@ -46,5 +46,9 @@ public class ItemRepository : IItemRepository
         await _db.SaveChangesAsync();
         return true;
     }
+    public async Task<Item?> Find(int id)
+    {
+        return await _db.Items.FindAsync(id);
+    }
 }
 

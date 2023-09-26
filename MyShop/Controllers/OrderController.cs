@@ -10,18 +10,22 @@ namespace MyShop.Controllers;
 
 public class OrderController : Controller
 {
-    private readonly ItemDbContext _itemDbContext;
+    private readonly IOrderRepository _orderRepository;
+    private readonly IItemRepository _itemRepository;
+    private readonly IOrderItemRepository _orderItemRepository;
 
-    public OrderController(ItemDbContext itemDbContext)
+    public OrderController(IOrderRepository orderRepository, IItemRepository itemRepository, IOrderItemRepository orderItemRepository)
     {
-        _itemDbContext = itemDbContext;
+        _orderRepository = orderRepository;
+        _itemRepository = itemRepository;
+        _orderItemRepository = orderItemRepository;
     }
 
     public async Task<IActionResult> Table()
     {
         // With the line below, we first query _itemDbContext, which in this case is a database table and we call ToListAsync() to retrieve all items 
         // from the table as a list of Item objects.
-        List<Order> orders = await _itemDbContext.Orders.ToListAsync();
+        var orders = await _orderRepository.GetAll();
         return View(orders);
     }
 
@@ -30,8 +34,8 @@ public class OrderController : Controller
     {
         // We query the database again to list all the items and orders that we can get and we need to async these to make these processes run
         // in the background because if not, these are blocking calls that take up a lot of time.
-        var items = await _itemDbContext.Items.ToListAsync();
-        var orders = await _itemDbContext.Orders.ToListAsync();
+        var items = await _itemRepository.GetAll();
+        var orders = await _orderRepository.GetAll();
         var createOrderItemViewModel = new CreateOrderItemViewModel
         {
             OrderItem = new OrderItem(),
@@ -57,8 +61,8 @@ public class OrderController : Controller
     {
         try
         {
-            var newItem = _itemDbContext.Items.Find(orderItem.ItemId);
-            var newOrder = _itemDbContext.Orders.Find(orderItem.OrderId);
+            var newItem = await _itemRepository.GetItemById(orderItem.ItemId);
+            var newOrder = await _orderRepository.GetOrderById(orderItem.OrderId);
 
             if (newItem == null || newOrder == null)
             {
@@ -75,8 +79,7 @@ public class OrderController : Controller
             };
             newOrderItem.OrderItemPrice = orderItem.Quantity * newOrderItem.Item.Price;
 
-            _itemDbContext.OrderItems.Add(newOrderItem);
-            await _itemDbContext.SaveChangesAsync();
+            await _orderItemRepository.Create(newOrderItem);
             return RedirectToAction(nameof(Table));
         }
         catch

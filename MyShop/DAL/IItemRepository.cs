@@ -12,6 +12,6 @@ namespace MyShop.DAL
         Task Create (Item item);
         Task Update(Item item);
         Task<bool> Delete(int id);
-
+        Task<Item?> Find(int id);
     }
 }
