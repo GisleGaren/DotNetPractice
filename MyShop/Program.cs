@@ -1,5 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MyShop.DAL;
+using MyShop.Models;
+using Serilog;
+using Serilog.Events;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -32,6 +35,21 @@ builder.Services.AddScoped<IItemRepository, ItemRepository>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<IOrderItemRepository, OrderItemRepository>();
 builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
+
+// The line below configures and injects the logging dependency into our webapp which helps us with debugging
+var loggerConfiguration = new LoggerConfiguration()
+    .MinimumLevel.Information() // levels: Trace< Information < Warning < Error < Fatal. In other words, the minimum level og logging is information
+    .WriteTo.File($"Logs/app_{DateTime.Now:yyyyMMdd_HHmmss}.log"); // Our logging activities are written to our File Directory along with its time format
+
+// We want to filter our logging because we are getting redundant text like "Executed DbCommand" all the time and we want to filter that out.
+// Properties.TryGetValue checks if the log event has a property called SourceContext and it is used to identify the source of the log event, which is often
+// a class or a component generating the log itself.
+loggerConfiguration.Filter.ByExcluding(e => e.Properties.TryGetValue("SourceContext", out var value) &&
+                            e.Level == LogEventLevel.Information && // Checks if the log's event is information.
+                            e.MessageTemplate.Text.Contains("Executed DbCommand")); // Filters out messages containing the string "Executed DbCommand"
+
+var logger = loggerConfiguration.CreateLogger();
+builder.Logging.AddSerilog(logger);
 
 var app = builder.Build();
 

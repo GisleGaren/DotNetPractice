@@ -10,17 +10,21 @@ public class ItemController : Controller
     // This time we are adding the ItemRepository interface _itemRepository, which contains all the methods that are in DAL (data access layer) class
 
     private readonly IItemRepository _itemRepository;
-
+    private readonly ILogger<ItemController> _logger;
     // Our new constructor is going to initialize the IItemRepository Interface to use it within our Action methods
-    public ItemController(IItemRepository itemRepository)
+    public ItemController(IItemRepository itemRepository, ILogger<ItemController> logger)
     {
         _itemRepository = itemRepository;
+        _logger = logger;
     }
 
     public async Task<IActionResult> Table()
     {
         // Same method with async, which makes this I/O call to the database work in the background to not block other processes.
         // instead of await _itemDbContext.Items.ToListAsync(), we can simply just call the itemRepository.GetAll() method.
+        _logger.LogInformation("This is an information message.");
+        _logger.LogWarning("This is a warning message.");
+        _logger.LogError("This is an error message.");
         var items = await _itemRepository.GetAll();
         var itemListViewModel = new ItemListViewModel(items, "Table");
         return View(itemListViewModel);
