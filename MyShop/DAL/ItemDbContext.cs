@@ -1,9 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MyShop.Models;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 // Above after we have downloaded MS.EntityFrameworkCore.SQLite
 namespace MyShop.DAL
 {
-    public class ItemDbContext : DbContext
+    public class ItemDbContext : IdentityDbContext
     {
         // The DbContextOptions<T> parameter encapsulates various configuration options and settings related to how the database context should operate
         // So once we instantiate the ItemDbContext class, we pass an instance of DbContextOptions<ItemDbContext> class to the constructor so that 

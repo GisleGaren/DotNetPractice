@@ -17,7 +17,9 @@ public static class DBInit
         // of ItemDbContext to work with in that specific HTTP request, ensunring that we have an isolated work space for each request.
         ItemDbContext context = serviceScope.ServiceProvider.GetRequiredService<ItemDbContext>();
         // If we want to not delete the existing database and create from scratch, we can comment out EnsureDeleted()
-        //context.Database.EnsureDeleted();
+
+        
+        context.Database.EnsureDeleted();
         context.Database.EnsureCreated();
 
         // Checks if there any any elements in the "Items" table, and if not, we add initial data to the database if empty.

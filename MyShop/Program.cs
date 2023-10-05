@@ -64,7 +64,7 @@ if (app.Environment.IsDevelopment())
 
 // We need the app.useStaticFiles() method middleware in order to use the static files in wwwroot
 app.UseStaticFiles();
+app.UseAuthentication();
 app.MapDefaultControllerRoute();
-
 
 app.Run();

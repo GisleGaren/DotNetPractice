@@ -1,6 +1,8 @@
 ﻿@model Item
 
 <h2>Create New Item</h2>
+<!-- Means that whenever we have an error in one or more input fields, this div below will display the errors of ALL of them-->
+<div asp-validation-summary="All" class="text-danger"></div>
 
 <!-- When the form is submitted, is should be processed by the Create action method in the controller.   -->
 <form asp-action="Create">

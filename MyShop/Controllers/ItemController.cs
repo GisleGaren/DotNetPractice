@@ -22,10 +22,12 @@ public class ItemController : Controller
     {
         // Same method with async, which makes this I/O call to the database work in the background to not block other processes.
         // instead of await _itemDbContext.Items.ToListAsync(), we can simply just call the itemRepository.GetAll() method.
-        _logger.LogInformation("This is an information message.");
-        _logger.LogWarning("This is a warning message.");
-        _logger.LogError("This is an error message.");
         var items = await _itemRepository.GetAll();
+        if (items == null)
+        {
+            _logger.LogError("[ItemController] Item list not found while executing _itemRepository.GetAll()");
+            return NotFound("Item list not found");
+        }
         var itemListViewModel = new ItemListViewModel(items, "Table");
         return View(itemListViewModel);
     }
@@ -33,6 +35,11 @@ public class ItemController : Controller
     public async Task<IActionResult> Grid()
     {
         var items = await _itemRepository.GetAll();
+        if (items == null)
+        {
+            _logger.LogError("[ItemController] Item list not found while executing _itemRepository.GetAll()");
+            return NotFound("Item list not found");
+        }
         var itemListViewModel = new ItemListViewModel(items, "Grid");
         return View(itemListViewModel);
     }
@@ -41,7 +48,10 @@ public class ItemController : Controller
     {
         var item = await _itemRepository.GetItemById(id);
         if (item == null)
-            return BadRequest("Item not found.");
+        {
+            _logger.LogError("[ItemController] Item not found for the ItemId {ItemId:0000}", id);
+            return NotFound("Item not found for the ItemId");
+        }
         return View(item);
     }
 
@@ -56,10 +66,11 @@ public class ItemController : Controller
     {
         if (ModelState.IsValid)
         {
-            await _itemRepository.Create(item);
-            return RedirectToAction(nameof(Table));
+            bool returnOk = await _itemRepository.Create(item);
+            if (returnOk)
+                return RedirectToAction(nameof(Table));
         }
-
+        _logger.LogWarning("[ItemController] Item creation failed {@item}", item);
         return View(item);
     }
 
@@ -69,7 +80,8 @@ public class ItemController : Controller
         var item = await _itemRepository.GetItemById(id);
         if (item == null)
         {
-            return NotFound();
+            _logger.LogError("[ItemController] Item not found when updating the ItemId {ItemId:0000}", id);
+            return BadRequest("Item not found for the ItemId");
         }
         return View(item);
     }
@@ -79,10 +91,11 @@ public class ItemController : Controller
     {
         if (ModelState.IsValid)
         {
-            await _itemRepository.Update(item);
-            return RedirectToAction(nameof(Table));
+            bool returnOk = await _itemRepository.Update(item);
+            if (returnOk)
+                return RedirectToAction(nameof(Table));
         }
-
+        _logger.LogWarning("[ItemController] Item update failed {@item}", item);
         return View(item);
     }
 
@@ -92,7 +105,8 @@ public class ItemController : Controller
         var item = await _itemRepository.GetItemById(id);
         if (item == null)
         {
-            return NotFound();
+            _logger.LogError("[ItemController] Item not found for the ItemId {ItemId:0000}", id);
+            return BadRequest("Item not found for the ItemId");
         }
         return View(item);
     }
@@ -100,7 +114,12 @@ public class ItemController : Controller
     [HttpPost]
     public async Task<IActionResult> DeleteConfirmed(int id)
     {
-        await _itemRepository.Delete(id);
+        bool returnOk = await _itemRepository.Delete(id);
+        if (!returnOk)
+        {
+            _logger.LogError("[ItemController] Item deletion failed for the ItemId {ItemId:0000}", id);
+            return BadRequest("Item deletion failed");
+        }
         return RedirectToAction(nameof(Table));
     }
 }

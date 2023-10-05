@@ -67,7 +67,6 @@ public class ItemRepository : IItemRepository
             _logger.LogError("[ItemRepository] item FindAsync(id) failed when updating the ItemId {ItemId:0000}, error message: {e}", item, e.Message);
             return false;
         }
-
     }
 
     public async Task<bool> Delete(int id)
