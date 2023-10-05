@@ -1,10 +1,12 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using MyShop.DAL;
 using MyShop.Models;
 using Serilog;
 using Serilog.Events;
+using Microsoft.AspNetCore.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
+var connectionString = builder.Configuration.GetConnectionString("ItemDbContextConnection") ?? throw new InvalidOperationException("Connection string 'ItemDbContextConnection' not found.");
 
 builder.Services.AddControllersWithViews();
 
@@ -26,6 +28,9 @@ builder.Services.AddDbContext<ItemDbContext>(options => {
     // Here we access the Connection String under the key ConnectionStrings:ItemDbContextConnection, and this connection string contains information about
     // database file paths and credentials needed to connect to the SQLite database.
 });
+
+builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
+    .AddEntityFrameworkStores<ItemDbContext>();
 
 // When we start the application, the dependency injector (ServiceCollection) associates requests for IItemRepository interface with instances
 // of the ItemRepository class. Whenever we request an instance of IItemRepository to be injected into a controller or other parts of the application,
