@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using MyShop.DAL;
 using MyShop.Models;
 using MyShop.ViewModels;
@@ -55,13 +56,19 @@ public class ItemController : Controller
         return View(item);
     }
 
+    // We use HttpGet for retrieval of websites using a URL
     [HttpGet]
+    // Authorize decorators are used so that users are not able to access all pages without being logged
+    // We add the decorator to all methods that change the database.
+    // Once we run the project, we can still view all the pages, but if we try to change the database, the browser will automatically jump to the login page
+    [Authorize]
     public IActionResult Create()
     {
         return View();
     }
 
     [HttpPost]
+    [Authorize]
     public async Task<IActionResult> Create(Item item)
     {
         if (ModelState.IsValid)
@@ -75,6 +82,7 @@ public class ItemController : Controller
     }
 
     [HttpGet]
+    [Authorize]
     public async Task<IActionResult> Update(int id)
     {
         var item = await _itemRepository.GetItemById(id);
@@ -87,6 +95,7 @@ public class ItemController : Controller
     }
 
     [HttpPost]
+    [Authorize]
     public async Task<IActionResult> Update(Item item)
     {
         if (ModelState.IsValid)
@@ -100,6 +109,7 @@ public class ItemController : Controller
     }
 
     [HttpGet]
+    [Authorize]
     public async Task<IActionResult> Delete(int id)
     {
         var item = await _itemRepository.GetItemById(id);
@@ -112,6 +122,7 @@ public class ItemController : Controller
     }
 
     [HttpPost]
+    [Authorize]
     public async Task<IActionResult> DeleteConfirmed(int id)
     {
         bool returnOk = await _itemRepository.Delete(id);

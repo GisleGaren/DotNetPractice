@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using MyShop.Models;
 using Microsoft.EntityFrameworkCore;
 using MyShop.ViewModels;
@@ -30,6 +31,7 @@ public class OrderController : Controller
     }
 
     [HttpGet]
+    [Authorize]
     public async Task<IActionResult> CreateOrderItem()
     {
         // We query the database again to list all the items and orders that we can get and we need to async these to make these processes run
@@ -57,6 +59,7 @@ public class OrderController : Controller
     }
 
     [HttpPost]
+    [Authorize]
     public async Task<IActionResult> CreateOrderItem(OrderItem orderItem)
     {
         try

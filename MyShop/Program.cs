@@ -6,7 +6,10 @@ using Serilog.Events;
 using Microsoft.AspNetCore.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
-var connectionString = builder.Configuration.GetConnectionString("ItemDbContextConnection") ?? throw new InvalidOperationException("Connection string 'ItemDbContextConnection' not found.");
+// Below code ensures that our application can retrieve a valid database connection string from its configuration. If the String is null or missing, it throws 
+// an exception to prevent the app to proceed without a database connection
+var connectionString = builder.Configuration.GetConnectionString("ItemDbContextConnection") ?? throw new
+    InvalidOperationException("Connection string 'ItemDbContextConnection' not found.");
 
 builder.Services.AddControllersWithViews();
 
@@ -28,9 +31,18 @@ builder.Services.AddDbContext<ItemDbContext>(options => {
     // Here we access the Connection String under the key ConnectionStrings:ItemDbContextConnection, and this connection string contains information about
     // database file paths and credentials needed to connect to the SQLite database.
 });
-
-builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
+// This code here means that we do not need to require confirmation before logging in, so that we don't need to confirm everytime we test log in.
+builder.Services.AddDefaultIdentity<IdentityUser>()
     .AddEntityFrameworkStores<ItemDbContext>();
+
+/* We are commenting this out to use the one above instead for simple testing in the development environment.
+   This sets up and configures ASP.NET Core Identity with Entity Framework for user authentication and authorization in our application. It enforces the requirement
+   for confirmed accounts before users can log in.
+   AddDefaultIdentity indicates to use the default Identity system and default user entity type, which are built-in in the ASP.NET Core Identity package.
+   RequiredConfirmedAccounts=True means that the user will need to confirm their accounts and verify it before they sign in.
+ builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
+    .AddEntityFrameworkStores<ItemDbContext>();  Add FrameworkStores sets the data store for user identity data, such as user accounts, which is ItemDbContext.
+*/
 
 // When we start the application, the dependency injector (ServiceCollection) associates requests for IItemRepository interface with instances
 // of the ItemRepository class. Whenever we request an instance of IItemRepository to be injected into a controller or other parts of the application,
@@ -40,6 +52,11 @@ builder.Services.AddScoped<IItemRepository, ItemRepository>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<IOrderItemRepository, OrderItemRepository>();
 builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
+
+// Allows us to use razor pages in our webapplication
+builder.Services.AddRazorPages();
+// Allows us to enable session state, and session objects allow us to store and retrieve user specific data during a user's visit to our webapp.
+builder.Services.AddSession();
 
 // The line below configures and injects the logging dependency into our webapp which helps us with debugging
 var loggerConfiguration = new LoggerConfiguration()
@@ -69,7 +86,14 @@ if (app.Environment.IsDevelopment())
 
 // We need the app.useStaticFiles() method middleware in order to use the static files in wwwroot
 app.UseStaticFiles();
+
+// The order is very important
+app.UseSession();
 app.UseAuthentication();
+app.UseAuthorization();
+
 app.MapDefaultControllerRoute();
+
+app.MapRazorPages();
 
 app.Run();
