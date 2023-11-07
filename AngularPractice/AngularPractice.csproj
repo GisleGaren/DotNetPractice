@@ -30,6 +30,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <TypeScriptCompile Remove="clientapp\src\app\items\item.ts" />
+    <TypeScriptCompile Remove="clientapp\src\app\shared\convert-to-currency.pipe.ts" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="ClientApp\src\app\shared\" />
     <Folder Include="ClientApp\src\assets\images\" />
     <Folder Include="Controllers\" />
   </ItemGroup>

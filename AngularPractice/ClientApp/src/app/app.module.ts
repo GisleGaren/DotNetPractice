@@ -10,6 +10,7 @@ import { AppComponent } from './app.component';
 import { NavMenuComponent } from './nav-menu/nav-menu.component';
 import { HomeComponent } from './home/home.component';
 import { ItemsComponent } from './items/items.component';
+import { ConvertToCurrency } from './shared/convert-to-currency.pipe';
 
 /* Is responsible for organisation of modules and components and the modules are the dependent packages.
    Components are the reusable UI elements like partial views. Template resolution is about finding the
@@ -21,7 +22,8 @@ import { ItemsComponent } from './items/items.component';
     AppComponent,
     NavMenuComponent,
     HomeComponent,
-    ItemsComponent
+    ItemsComponent,
+    ConvertToCurrency
   ],
   imports: [
     BrowserModule.withServerTransition({ appId: 'ng-cli-universal' }),

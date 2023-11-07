@@ -1,5 +1,23 @@
 <h1 id="tableLabel">List of Items ({{ viewTitle }} View)</h1>
 
+<div class="row">
+  <div class="col-md-2">Filter by:</div>
+  <div class="col-md-4">
+      <!-- Below we have implemented two-way binding using the ngModel directive.
+           two-way data binding allows us to synchronize the data between the HTML template
+           and the component's TypeScript code -->
+      <input type="text" [(ngModel)] = "listFilter" />
+  </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <!-- At the same time with twoway binding, we type in an input string above, and then that same
+             string gets displayed down below to show us how two-way binding works! -->
+        <h4>Filtered by: {{ listFilter }}</h4>
+    </div>
+</div>
+
 <table class='table table-striped' aria-labelledby="tableLabel">
   <thead>
     <tr>
@@ -15,11 +33,17 @@
     </tr>
   </thead>
   <tbody>
-    <tr *ngFor='let item of items'>
+    <tr *ngFor='let item of filteredItems'>
       <td> {{ item.ItemId }} </td>
       <td> {{ item.Name }} </td>
-      <td> {{ item.Price }} </td>
+      <!-- Remember transform(value: number, character: string): string {
+      return character + ' ' + value.toString(); ?
+      Here we take in the item.Price in the transform() method as first argument and we have the pipe
+      "kr." string as the second argument. The returned value from the transform() method is "kr. 150"
+      because the return value returns first the string  "kr." followed by " " space string and then
+      the toString of the item.Price. -->
+      <td width="120">{{ item.Price | convertToCurrency: "kr." }}</td>
       <td> {{ item.Description }} </td>
-      <td *ngIf="displayImage"><img [src]=item.ImageUrl width="80"/></td>
+      <td *ngIf="displayImage"><img [src]=item.ImageUrl width="80" /></td>
 </tbody>
 </table>
